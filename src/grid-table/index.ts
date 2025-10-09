@@ -37,9 +37,15 @@ export class GridTable {
   // Scroll handling
   private isThumbDragging = false;
   private dragStartY = 0;
+  private SCROLL_STEP = 4;
 
   // Render optimization flag
   private isFrameUpdateScheduled = false;
+
+  // Auto-scroll properties
+  private autoScrollId: number | null = null;
+  private lastScrollTime: number = 0;
+  private scrollDelay: number = 2;
 
   constructor(
     container: HTMLElement,
@@ -83,11 +89,11 @@ export class GridTable {
     }
 
     if (scrollDelta < 0) {
-      this.viewWindow.start--;
-      this.viewWindow.end--;
+      this.viewWindow.start -= this.SCROLL_STEP;
+      this.viewWindow.end -= this.SCROLL_STEP;
     } else {
-      this.viewWindow.start++;
-      this.viewWindow.end++;
+      this.viewWindow.start += this.SCROLL_STEP;
+      this.viewWindow.end += this.SCROLL_STEP;
     }
 
     this.viewWindow.start = Math.max(0, this.viewWindow.start);
@@ -95,10 +101,9 @@ export class GridTable {
 
     if (this.isFrameUpdateScheduled) return;
     this.isFrameUpdateScheduled = true;
-
     requestAnimationFrame(() => {
-      this.updateVisibleCells();
       this.isFrameUpdateScheduled = false;
+      this.updateVisibleCells();
       this.syncThumbPositionWithScroll();
     });
   }
@@ -134,8 +139,8 @@ export class GridTable {
       .join("");
 
     const searchRowMarkup = this.columns
-      .map((col) =>
-        this.createSearchCell(`Search ${col.label}`, col.identifier)
+      .map((col, idx) =>
+        this.createSearchCell(`Search ${col.label}`, idx.toString())
       )
       .join("");
 
@@ -167,9 +172,9 @@ export class GridTable {
       rowIndex <= this.viewWindow.end;
       rowIndex++
     ) {
-      for (const column of this.columns) {
+      for (let colIndex = 0; colIndex < this.columns.length; colIndex++) {
         markup += this.createTableCell(
-          this.data[rowIndex]?.[column.identifier],
+          this.data[rowIndex]?.[colIndex],
           "table-cell content-cell"
         );
       }
@@ -182,22 +187,21 @@ export class GridTable {
     const activeData = this.areSearchInputsEmpty()
       ? this.data
       : this.filteredData;
-    let rowIndex = this.viewWindow.start;
-    let colIndex = 0;
-    let currentRow: RowData | undefined;
 
-    for (const cell of this.renderedCells) {
-      if (colIndex === 0) {
-        currentRow = activeData[rowIndex]; // Update row only when needed
-      }
-      cell.textContent = currentRow
-        ? currentRow[this.columns[colIndex].identifier] ?? ""
-        : "";
+    const { start, end } = this.viewWindow;
+    const visibleRows = activeData.slice(start, end);
 
-      colIndex++;
-      if (colIndex === this.columns.length) {
-        colIndex = 0;
-        rowIndex++;
+    for (let i = 0; i < this.renderedCells.length; i++) {
+      const row = Math.floor(i / this.columns.length);
+      const col = i % this.columns.length;
+
+      const dataRow = visibleRows[row];
+
+      if (!dataRow || col >= this.columns.length) {
+        this.renderedCells[i].textContent = "";
+      } else {
+        const value = dataRow[col] ?? "";
+        this.renderedCells[i].textContent = value;
       }
     }
   }
@@ -207,13 +211,13 @@ export class GridTable {
   private createTableCell(content: string, className: string): string {
     return `<div class="${className}" style="height:${
       this.config.cellHeight
-    }px; min-width:${this.config.cellWidth}px">
+    }px; width:${this.config.cellWidth}px">
               ${content ?? ""}
             </div>`;
   }
 
   private createHeaderCell(label: string): string {
-    return `<div class="header-cell" style="height:${this.config.cellHeight}px; min-width:${this.config.cellWidth}px">
+    return `<div class="header-cell" style="height:${this.config.cellHeight}px; width:${this.config.cellWidth}px">
               ${label}
             </div>`;
   }
@@ -221,7 +225,7 @@ export class GridTable {
   private createSearchCell(placeholder: string, uniqueId: string): string {
     return `<input type="text" class="search-cell"
               placeholder="${placeholder}" id="${uniqueId}"
-              style="height:${this.config.cellHeight}px; min-width:${this.config.cellWidth}px">`;
+              style="height:${this.config.cellHeight}px; width:${this.config.cellWidth}px">`;
   }
 
   private generateScrollbar(): string {
@@ -255,9 +259,11 @@ export class GridTable {
     300
   );
 
-  private executeSearch(columnId: string, value: string): void {
+  private executeSearch(columnIdxNumber: string, value: string): void {
     this.filteredData = this.data.filter((row) =>
-      String(row[columnId]).toLowerCase().includes(value.toLowerCase())
+      String(row[Number(columnIdxNumber)])
+        .toLowerCase()
+        .includes(value.toLowerCase())
     );
     this.updateVisibleCells();
   }
@@ -326,6 +332,41 @@ export class GridTable {
     }
 
     this.updateVisibleCells();
+  }
+
+  /* ---------------------------- Auto scroll ---------------------------- */
+  /** Starts a continuous, smooth scrolling simulation. */
+  public startAutoScroll(): void {
+    if (this.autoScrollId !== null) return; // Already running
+
+    this.lastScrollTime = performance.now();
+
+    const scrollLoop = (time: DOMHighResTimeStamp) => {
+      if (time - this.lastScrollTime > this.scrollDelay) {
+        this.handleScroll(1);
+        this.lastScrollTime = time;
+      }
+
+      const maxScrollableIndex = Math.max(
+        0,
+        this.data.length - this.viewWindow.visibleCount
+      );
+      if (this.viewWindow.start < maxScrollableIndex) {
+        this.autoScrollId = requestAnimationFrame(scrollLoop);
+      } else {
+        this.stopAutoScroll();
+      }
+    };
+
+    this.autoScrollId = requestAnimationFrame(scrollLoop);
+  }
+
+  /** Stops the continuous scrolling simulation. */
+  public stopAutoScroll(): void {
+    if (this.autoScrollId !== null) {
+      cancelAnimationFrame(this.autoScrollId);
+      this.autoScrollId = null;
+    }
   }
 
   /* ------------------------------- Public API ------------------------------- */
