@@ -1,0 +1,166 @@
+:root {
+  /* --- Colors  --- */
+  --color-primary: #6c7c64; /* Dark Olive Green (used for main theme/branding) */
+  --color-primary-hover: #596552; /* Slightly darker olive for hover states */
+  --color-accent: #a46d3e; /* Warm Brown/Orange Accent (for highlights) */
+  --color-background-main: #f9fafb; /* Off-White/Light Gray */
+  --color-background-card: #ffffff; /* White */
+  --color-text-dark: #1f2937; /* Dark Text */
+  --color-text-medium: #6b7280; /* Muted Text */
+  --color-border-dashed: #d1d5db; /* Gray-300 for dropzone default */
+  --color-dropzone-active-border: var(--color-primary);
+  --color-dropzone-active-bg: #f5f8f5; /* Very light green tint */
+
+  /* --- Typography --- */
+  --font-family-main: sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* --- Font Sizes  --- */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-md: 1rem; /* 16px (Base) */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+  --font-size-5xl: 3rem; /* 48px */
+}
+body {
+  font-family: var(--font-family-main);
+  padding: 0;
+  margin: 0;
+}
+#app-upload {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  /* display: none; */
+}
+header h1 {
+  margin: 0;
+  padding: 4px 18px;
+  font-size: var(--font-size-lg);
+  color: white;
+  background-color: var(--color-primary);
+}
+
+footer p {
+  text-align: center;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+/* input */
+.file-selector {
+  margin-inline: 2rem;
+  margin-block: 4rem;
+  border: 1px solid var(--color-primary);
+  input {
+    display: none;
+  }
+  margin-bottom: 120px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  label {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+    user-select: none;
+    &:hover {
+      background-color: var(--color-primary-hover);
+    }
+  }
+}
+
+/* notes */
+.notes {
+  padding-inline: 2rem;
+  p {
+    text-align: justify;
+    font-size: 14px;
+  }
+}
+/* ------------------- app grid ---------------  */
+#app-grid {
+  height: 100vh;
+  display: none;
+}
+
+/* status */
+
+.status {
+  background-color: var(--color-text-medium);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: 4px;
+  height: 24px;
+  box-sizing: border-box;
+  p {
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+  }
+  button {
+    font-size: 18px;
+    color: white;
+    font-weight: 600;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.grid {
+  height: calc(100vh - 24px);
+  background-color: red;
+  position: relative;
+}
+
+/* ---------loading container --------------- */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#loading-container {
+  height: 100vh;
+  width: 100vw;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(245, 245, 245, 0.63);
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.loading {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top: 5px solid #2563eb;
+  animation: spin 1s linear infinite;
+}

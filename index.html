@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>High performance data grid table</title>
+  </head>
+  <body>
+    <div id="loading-container">
+      <div id="loading" class="loading"></div>
+    </div>
+    <div id="app-grid">
+      <div class="status" id="status">
+        <p id="status-file-name">File name selected</p>
+        <button id="status-close-grid">X</button>
+      </div>
+      <div id="grid" class="grid"></div>
+    </div>
+    <div id="app-upload">
+      <header>
+        <h1>High performance data grid</h1>
+      </header>
+      <div class="notes">
+        <p>
+          Dive into the world of handling massive datasets this data grid! Built
+          to smoothly render up to a million rows (or maybe more not limit, not
+          be honest just how you store is the issue), it offers smooth scrolling
+          and razor-sharp responsiveness that keeps you in the flow. The secret?
+          Intelligent virtualization that renders only the cells in view with
+          virtualized scrolling, paired with very optimized and granular DOM
+          updates. scrolling and a slick custom scrollbar for effortless
+          navigation. Here, I am here only focused on taming the challenge of
+          large-scale rendering. Storing and handling data is saved for the
+          sequel. And this logic scales horizontally too, perfect for those epic
+          wide datasets!
+        </p>
+        <p>
+          Wanna look into behind-the-scenes? Check out this article, where I
+          unpack every clever implementation detail and performance hacks!
+        </p>
+      </div>
+      <div class="file-selector">
+        <input type="file" id="file-input" accept="text/csv" />
+        <label for="file-input">Select file</label>
+      </div>
+      <footer>
+        <p>
+          Hi, I'm Lalit, a software engineer driven by a passion for building
+          high-performance, scalable apps with a focus on optimization. Check
+          out this source code on GitHub, follow my latest updates on X, and
+          connect with me on LinkedIn for exciting projects, insights, and
+          collaboration opportunities!
+        </p>
+      </footer>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
