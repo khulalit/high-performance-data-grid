@@ -39,14 +39,15 @@ export const App = () => {
     FILE_NAME.textContent = file.name;
     LOADER.style.display = "flex";
     Papa.parse(file, {
-      header: true,
+      header: false,
       dynamicTyping: true,
       worker: true,
       error() {
         alert("Error while parsing the file.");
       },
+
       complete: function (results: any) {
-        const colsDefination = Object.keys(results.data[0]).map((key) => ({
+        const colsDefination = results.data[0].map((key: any) => ({
           identifier: key,
           label: key,
         }));
@@ -57,12 +58,16 @@ export const App = () => {
           cellWidth: 100,
         };
         gridTable = new GridTable(GRID_CONTAINER, colsDefination, config);
-        gridTable.loadData(results?.data);
+        gridTable.loadData(results?.data.slice(1));
         APP_FILE.style.display = "none";
         APP_GRID.style.display = "block";
 
         gridTable.render();
         LOADER.style.display = "none";
+
+        // setTimeout(() => {
+        //   gridTable.startAutoScroll();
+        // }, 2000);
       },
     });
   });

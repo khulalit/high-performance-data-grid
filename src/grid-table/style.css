@@ -33,8 +33,9 @@
   top: 0;
   width: 12px;
   height: 100%;
-  background: transparent;
+  background: white;
   position: absolute;
+  box-sizing: border-box;
 }
 
 .scrollbar-thumb {
@@ -42,6 +43,7 @@
   height: 120px;
   background: #999;
   border-radius: 6px;
+  padding-inline: 1px;
   cursor: pointer;
   transition: background 0.2s;
   position: absolute;
