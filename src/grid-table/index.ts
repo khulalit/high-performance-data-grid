@@ -211,13 +211,13 @@ export class GridTable {
   private createTableCell(content: string, className: string): string {
     return `<div class="${className}" style="height:${
       this.config.cellHeight
-    }px; width:${this.config.cellWidth}px">
+    }px; min-width:${this.config.cellWidth}px">
               ${content ?? ""}
             </div>`;
   }
 
   private createHeaderCell(label: string): string {
-    return `<div class="header-cell" style="height:${this.config.cellHeight}px; width:${this.config.cellWidth}px">
+    return `<div class="header-cell" style="height:${this.config.cellHeight}px; min-width:${this.config.cellWidth}px">
               ${label}
             </div>`;
   }
@@ -225,7 +225,7 @@ export class GridTable {
   private createSearchCell(placeholder: string, uniqueId: string): string {
     return `<input type="text" class="search-cell"
               placeholder="${placeholder}" id="${uniqueId}"
-              style="height:${this.config.cellHeight}px; width:${this.config.cellWidth}px">`;
+              style="height:${this.config.cellHeight}px; min-width:${this.config.cellWidth}px">`;
   }
 
   private generateScrollbar(): string {

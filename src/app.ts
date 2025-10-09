@@ -10,6 +10,7 @@ export const App = () => {
   const LOADER = document.querySelector("#loading-container") as HTMLElement;
   const FILE_NAME = document.querySelector("#status-file-name") as HTMLElement;
   const CLOSE_BTN = document.querySelector("#status-close-grid");
+  const SCROLL_AUTO_BTN = document.querySelector("#status-auto-scroll");
 
   CLOSE_BTN?.addEventListener("click", () => {
     if (gridTable) {
@@ -22,6 +23,19 @@ export const App = () => {
     if (FILE_NAME) FILE_NAME.textContent = "No file selected";
     if (APP_FILE) APP_FILE.style.display = "flex";
     if (APP_GRID) APP_GRID.style.display = "none";
+  });
+
+  let startScrolling = false;
+  SCROLL_AUTO_BTN?.addEventListener("click", () => {
+    if (!gridTable) return;
+    startScrolling = !startScrolling;
+    if (startScrolling) {
+      gridTable.startAutoScroll();
+      SCROLL_AUTO_BTN.textContent = "Stop auto scroll";
+    } else {
+      gridTable.stopAutoScroll();
+      SCROLL_AUTO_BTN.textContent = "Start auto scroll";
+    }
   });
 
   FILE_INPUT?.addEventListener("change", (e: any) => {
@@ -65,9 +79,7 @@ export const App = () => {
         gridTable.render();
         LOADER.style.display = "none";
 
-        // setTimeout(() => {
-        //   gridTable.startAutoScroll();
-        // }, 2000);
+        if (startScrolling) gridTable.startAutoScroll();
       },
     });
   });

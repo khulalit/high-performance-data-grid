@@ -125,11 +125,16 @@ footer p {
     border: none;
     cursor: pointer;
   }
+  #status-auto-scroll {
+    font-size: 12px;
+    background-color: var(--color-text-dark);
+    color: white;
+    padding: 4px 8px;
+  }
 }
 
 .grid {
   height: calc(100vh - 24px);
-  background-color: red;
   position: relative;
 }
 
