@@ -80,24 +80,19 @@ export class GridTable {
   private handleScroll(scrollDelta: number): void {
     const totalRows = this.data.length;
 
-    // Prevent overscrolling beyond data limits
-    if (
-      (scrollDelta < 0 && this.viewWindow.start === 0) ||
-      (scrollDelta > 0 && this.viewWindow.end === totalRows - 1)
-    ) {
-      return;
-    }
-
     if (scrollDelta < 0) {
+      if (this.viewWindow.start === 0) {
+        return;
+      }
       this.viewWindow.start -= this.SCROLL_STEP;
       this.viewWindow.end -= this.SCROLL_STEP;
     } else {
+      if (this.viewWindow.end >= totalRows - 1) {
+        return;
+      }
       this.viewWindow.start += this.SCROLL_STEP;
       this.viewWindow.end += this.SCROLL_STEP;
     }
-
-    this.viewWindow.start = Math.max(0, this.viewWindow.start);
-    this.viewWindow.end = Math.min(totalRows + 1, this.viewWindow.end);
 
     if (this.isFrameUpdateScheduled) return;
     this.isFrameUpdateScheduled = true;
@@ -211,13 +206,13 @@ export class GridTable {
   private createTableCell(content: string, className: string): string {
     return `<div class="${className}" style="height:${
       this.config.cellHeight
-    }px; min-width:${this.config.cellWidth}px">
+    }px; width:${this.config.cellWidth}px">
               ${content ?? ""}
             </div>`;
   }
 
   private createHeaderCell(label: string): string {
-    return `<div class="header-cell" style="height:${this.config.cellHeight}px; min-width:${this.config.cellWidth}px">
+    return `<div class="header-cell" style="height:${this.config.cellHeight}px; width:${this.config.cellWidth}px">
               ${label}
             </div>`;
   }
@@ -225,7 +220,7 @@ export class GridTable {
   private createSearchCell(placeholder: string, uniqueId: string): string {
     return `<input type="text" class="search-cell"
               placeholder="${placeholder}" id="${uniqueId}"
-              style="height:${this.config.cellHeight}px; min-width:${this.config.cellWidth}px">`;
+              style="height:${this.config.cellHeight}px; width:${this.config.cellWidth}px">`;
   }
 
   private generateScrollbar(): string {

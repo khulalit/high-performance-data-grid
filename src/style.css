@@ -49,15 +49,32 @@ header h1 {
   background-color: var(--color-primary);
 }
 
-footer p {
+footer {
+  background-color: var(--color-background-card);
+  border-top: 1px solid var(--color-border-dashed);
+  padding: 1rem;
   text-align: center;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
   position: fixed;
   bottom: 0;
   width: 100%;
 }
+footer p {
+  font-size: 14px;
+  color: var(--color-text-medium);
+  line-height: 1.5;
+  margin: 0;
+}
 
+footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+}
+
+footer a:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
 /* input */
 .file-selector {
   margin-inline: 2rem;
@@ -89,9 +106,15 @@ footer p {
 /* notes */
 .notes {
   padding-inline: 2rem;
+  margin-top: 1rem;
+  max-width: 900px;
+  margin-inline: auto;
+  line-height: 1.6;
   p {
     text-align: justify;
-    font-size: 14px;
+    font-size: 15px;
+    color: var(--color-text-medium);
+    margin-bottom: 1rem;
   }
 }
 /* ------------------- app grid ---------------  */
