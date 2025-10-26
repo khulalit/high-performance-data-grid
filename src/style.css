@@ -192,3 +192,24 @@ footer a:hover {
   border-top: 5px solid #2563eb;
   animation: spin 1s linear infinite;
 }
+
+/*------------ select type---------------------*/
+.table-type-selector {
+  font-family: sans-serif;
+  font-weight: 600;
+  font-size: medium;
+  padding-inline: 2rem;
+}
+#table-type-select {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#table-type-select:hover {
+  background-color: #ddd;
+}
