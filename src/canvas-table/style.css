@@ -1,0 +1,98 @@
+* {
+  box-sizing: border-box;
+}
+.canvas-table-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: auto;
+  font-family: system-ui, -apple-system, sans-serif;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.header-wrapper {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  z-index: 10;
+}
+
+.header-container {
+  display: grid;
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  user-select: none;
+}
+
+.header-cell {
+  text-align: center;
+  border-right: 1px solid #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  transition: background 0.2s;
+  box-sizing: border-box;
+}
+
+.header-cell:hover {
+  background: #eef2f7;
+}
+
+.header-cell:last-child {
+  border-right: none;
+}
+
+.canvas-wrapper {
+  width: 100%;
+  height: calc(100% - 43px); /* header height */
+}
+
+.table-canvas {
+  display: block;
+  image-rendering: pixelated; /* optional: crisp text */
+}
+
+.scrollbar-track {
+  right: 0;
+  top: 0;
+  width: 12px;
+  height: 100%;
+  background: white;
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.scrollbar-thumb {
+  width: 100%;
+  height: 120px;
+  background: #999;
+  border-radius: 6px;
+  padding-inline: 1px;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 11;
+  /*   margin-top: 360px; */
+}
+
+.scrollbar-thumb:hover {
+  background: #666;
+}
+
+.scrollbar-thumb.is-dragging {
+  background: #444;
+}
+
+/* Optional: improve text rendering */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .table-canvas {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}

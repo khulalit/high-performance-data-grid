@@ -1,3 +1,9 @@
+/**
+ * @author Lalit <lalitkhudania1@gmail.com>
+ * @description High-performance data table.
+ *
+ */
+
 import { debounce, throttle } from "../utils";
 import "./style.css";
 

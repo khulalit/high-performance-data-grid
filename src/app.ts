@@ -1,6 +1,8 @@
 import Papa from "papaparse";
 import { GridConfig, GridTable } from "./grid-table";
+import { GridConfig as ConvasGridConfig } from "./canvas-table";
 import { calculateHeight } from "./utils";
+import { CanvasTable } from "./canvas-table";
 export const App = () => {
   let gridTable: any = null;
   const GRID_CONTAINER = document.querySelector("#grid") as HTMLElement;
@@ -11,6 +13,26 @@ export const App = () => {
   const FILE_NAME = document.querySelector("#status-file-name") as HTMLElement;
   const CLOSE_BTN = document.querySelector("#status-close-grid");
   const SCROLL_AUTO_BTN = document.querySelector("#status-auto-scroll");
+  const TABLE_TYPE_SELECT = document.querySelector(
+    "#table-type-select"
+  ) as HTMLSelectElement;
+
+  const urlParams = new URLSearchParams(window.location.search);
+
+  // Set default table type based on URL query parameter
+  const selectedTableType = urlParams.get("type") || "";
+  TABLE_TYPE_SELECT.value = selectedTableType;
+
+  // Update URL when table type is changed
+  TABLE_TYPE_SELECT.addEventListener("change", (event: any) => {
+    const selectedTableType = event?.target?.value! as unknown as string;
+    urlParams.set("type", selectedTableType);
+    window.history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${urlParams.toString()}`
+    );
+  });
 
   CLOSE_BTN?.addEventListener("click", () => {
     if (gridTable) {
@@ -39,6 +61,10 @@ export const App = () => {
   });
 
   FILE_INPUT?.addEventListener("change", (e: any) => {
+    if (!["canvas", "dom"].includes(selectedTableType)) {
+      alert("Please select a table type");
+      return;
+    }
     const file = e?.target?.files[0];
     const MAX_SIZE_MB = 50;
     const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
@@ -71,7 +97,29 @@ export const App = () => {
           viewHeight: calculateHeight(24),
           cellWidth: 100,
         };
-        gridTable = new GridTable(GRID_CONTAINER, colsDefination, config);
+
+        const canvasConfig: ConvasGridConfig = {
+          cellHeight: 22,
+          viewHeight: calculateHeight(24) as any,
+          cellWidth: 150,
+          viewWidth: colsDefination.length * 150,
+        };
+        gridTable = new CanvasTable(
+          GRID_CONTAINER,
+          colsDefination,
+          canvasConfig
+        );
+
+        if (selectedTableType === "canvas") {
+          gridTable = new CanvasTable(
+            GRID_CONTAINER,
+            colsDefination,
+            canvasConfig
+          );
+        } else {
+          gridTable = new GridTable(GRID_CONTAINER, colsDefination, config);
+        }
+
         gridTable.loadData(results?.data.slice(1));
         APP_FILE.style.display = "none";
         APP_GRID.style.display = "block";
