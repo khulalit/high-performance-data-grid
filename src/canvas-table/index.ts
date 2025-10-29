@@ -1,8 +1,8 @@
 /**
  * @author Lalit <lalitkhudania1@gmail.com>
- * @description High-performance data table with Canvas.
- *
+ * @description High-performance data table with Canvas (DPR-fixed version).
  */
+
 import { debounce, throttle } from "../utils";
 import "./style.css";
 
@@ -25,7 +25,7 @@ export class CanvasTable {
   private container: HTMLElement;
   private columns: ColumnDefinition[];
   private config: GridConfig;
-  private data: string[][] = []; // Supports string[][]
+  private data: string[][] = [];
 
   // Layout
   private readonly SCROLL_STEP = 3;
@@ -47,10 +47,10 @@ export class CanvasTable {
   private isThumbDragging = false;
   private dragStartY = 0;
 
-  // Auto Scroll (for performance testing)
+  // Auto Scroll (for testing)
   private autoScrollId: number | null = null;
   private lastScrollTime = 0;
-  private readonly scrollDelay = 2; // ~500 FPS cap
+  private readonly scrollDelay = 2;
 
   /* ============================== CONSTRUCTOR ============================== */
   constructor(
@@ -65,7 +65,6 @@ export class CanvasTable {
   }
 
   /* =========================== EVENT LISTENERS =========================== */
-  /** Sets up wheel scrolling (vertical only) */
   private setupEventListeners(): void {
     this.container.addEventListener(
       "wheel",
@@ -81,7 +80,6 @@ export class CanvasTable {
   }
 
   /* ============================= SCROLL LOGIC ============================= */
-  /** Handles vertical wheel delta */
   private handleScrollY(delta: number): void {
     this.scrollToRow(
       this.viewWindowRow.start +
@@ -89,7 +87,6 @@ export class CanvasTable {
     );
   }
 
-  /** Updates visible row window and redraws */
   private scrollToRow(start: number): void {
     const max = Math.max(0, this.data.length - this.visibleCount.verticalCount);
     const newStart = Math.max(0, Math.min(start, max));
@@ -104,7 +101,6 @@ export class CanvasTable {
     this.syncThumbPositionWithScroll();
   }
 
-  /** Syncs custom scrollbar thumb with current scroll */
   private syncThumbPositionWithScroll(): void {
     if (!this.scrollbarThumb || !this.scrollbarTrack || this.data.length === 0)
       return;
@@ -129,7 +125,6 @@ export class CanvasTable {
   }
 
   /* ========================== LAYOUT CALCULATION ========================== */
-  /** Calculates how many rows fit in viewport */
   private calculateVisibleCount(): void {
     this.visibleCount.verticalCount = Math.ceil(
       this.config.viewHeight / this.config.cellHeight
@@ -137,7 +132,6 @@ export class CanvasTable {
   }
 
   /* =============================== SCROLLBAR =============================== */
-  /** Generates vertical scrollbar HTML */
   private generateScrollbar(): string {
     const trackHeight = this.config.viewHeight;
     const totalHeight = this.data.length * this.config.cellHeight;
@@ -154,7 +148,6 @@ export class CanvasTable {
   }
 
   /* ============================== HEADER UI =============================== */
-  /** Updates header with column labels */
   private updateHeader(): void {
     if (!this.headerContainer) return;
     this.headerContainer.innerHTML = this.columns
@@ -162,7 +155,6 @@ export class CanvasTable {
       .join("");
   }
 
-  /** Generates full table HTML structure */
   private generateTableHTML(): string {
     const totalColumns = this.columns.length;
     const fullTableWidth = totalColumns * this.config.cellWidth;
@@ -201,17 +193,19 @@ export class CanvasTable {
   }
 
   /* ============================ CANVAS RENDERING =========================== */
-  /** Renders static grid lines (offscreen) */
   private renderStaticGrid(): void {
-    const { cellWidth, cellHeight } = this.config;
+    const { cellWidth, cellHeight, viewHeight } = this.config;
     const verticalCount = this.visibleCount.verticalCount;
     const fullWidth = this.columns.length * cellWidth;
 
-    this.gridCanvas.width = fullWidth;
-    this.gridCanvas.height = this.config.viewHeight;
+    const dpr = window.devicePixelRatio || 1;
+
+    this.gridCanvas.width = fullWidth * dpr;
+    this.gridCanvas.height = viewHeight * dpr;
+    this.gridCtx.scale(dpr, dpr);
 
     const ctx = this.gridCtx;
-    ctx.clearRect(0, 0, fullWidth, this.config.viewHeight);
+    ctx.clearRect(0, 0, fullWidth, viewHeight);
     ctx.strokeStyle = "#ddd";
     ctx.lineWidth = 1;
 
@@ -224,26 +218,41 @@ export class CanvasTable {
     }
   }
 
-  /** Renders text with ellipsis for overflow */
   private renderTextLayer(): void {
-    const { cellWidth, cellHeight } = this.config;
+    const { cellWidth, cellHeight, viewHeight } = this.config;
     const fullWidth = this.columns.length * cellWidth;
     const ctx = this.textCtx;
+    const dpr = window.devicePixelRatio || 1;
 
-    this.textCanvas.width = fullWidth;
-    this.textCanvas.height = this.config.viewHeight;
+    this.textCanvas.width = fullWidth * dpr;
+    this.textCanvas.height = viewHeight * dpr;
+    this.textCanvas.style.width = `${fullWidth}px`;
+    this.textCanvas.style.height = `${viewHeight}px`;
 
-    ctx.clearRect(0, 0, fullWidth, this.config.viewHeight);
-    ctx.drawImage(this.gridCanvas, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform before scaling
+    ctx.scale(dpr, dpr);
 
-    ctx.font = "13px Arial";
+    ctx.clearRect(0, 0, fullWidth, viewHeight);
+    ctx.drawImage(
+      this.gridCanvas,
+      0,
+      0,
+      fullWidth * dpr,
+      viewHeight * dpr,
+      0,
+      0,
+      fullWidth,
+      viewHeight
+    );
+
+    ctx.font = `${13}px Arial`;
     ctx.fillStyle = "#1a1a1a";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
     const rowStart = this.viewWindowRow.start;
     const rowEnd = this.viewWindowRow.end;
-    const maxTextWidth = cellWidth - 12; // 6px padding
+    const maxTextWidth = cellWidth - 12;
 
     for (let localRow = 0; localRow < rowEnd - rowStart; localRow++) {
       const globalRow = rowStart + localRow;
@@ -271,14 +280,12 @@ export class CanvasTable {
         );
         const displayText =
           estChars > 0 ? text.slice(0, estChars) + "..." : "...";
-
         ctx.fillText(displayText, x, y);
       }
     }
   }
 
   /* =========================== SCROLLBAR DRAG =========================== */
-  /** Attaches drag handlers to custom scrollbar */
   private attachScrollbarEventListeners(): void {
     this.scrollbarThumb.addEventListener(
       "mousedown",
@@ -321,19 +328,16 @@ export class CanvasTable {
     this.scrollToRow(targetRow);
   }
 
-  /* ============================ AUTO SCROLL (TEST) ========================= */
-  /** Starts smooth auto-scrolling for performance testing */
+  /* ============================ AUTO SCROLL ============================ */
   public startAutoScroll(): void {
     if (this.autoScrollId !== null) return;
 
     this.lastScrollTime = performance.now();
-
     const loop = (time: DOMHighResTimeStamp) => {
       if (time - this.lastScrollTime >= this.scrollDelay) {
         this.handleScrollY(this.SCROLL_STEP);
         this.lastScrollTime = time;
       }
-
       const maxStart = Math.max(
         0,
         this.data.length - this.visibleCount.verticalCount
@@ -344,11 +348,9 @@ export class CanvasTable {
         this.stopAutoScroll();
       }
     };
-
     this.autoScrollId = requestAnimationFrame(loop);
   }
 
-  /** Stops auto-scrolling */
   public stopAutoScroll(): void {
     if (this.autoScrollId !== null) {
       cancelAnimationFrame(this.autoScrollId);
@@ -357,7 +359,6 @@ export class CanvasTable {
   }
 
   /* =============================== PUBLIC API =============================== */
-  /** Loads data (supports string[][]) */
   public loadData(data: string[][]): void {
     this.data = data;
     this.calculateVisibleCount();
@@ -367,7 +368,6 @@ export class CanvasTable {
     };
   }
 
-  /** Renders the table */
   public render(): void {
     this.container.innerHTML = this.generateTableHTML();
 
@@ -380,13 +380,6 @@ export class CanvasTable {
     this.gridCanvas = document.createElement("canvas");
     this.gridCtx = this.gridCanvas.getContext("2d")!;
 
-    const fullWidth = this.columns.length * this.config.cellWidth;
-
-    // Critical: canvas pixel buffer = full width
-    this.textCanvas.width = fullWidth;
-    this.textCanvas.height = this.config.viewHeight;
-    this.textCanvas.style.width = `${fullWidth}px`; // No scaling
-
     this.renderStaticGrid();
     this.renderTextLayer();
 
@@ -396,45 +389,25 @@ export class CanvasTable {
     this.scrollbarThumb = this.container.querySelector(
       "#table-scrollbar-thumb"
     )!;
-
     this.attachScrollbarEventListeners();
   }
 
-  /** Redraws only visible cells */
   public updateVisibleCells(): void {
     this.renderTextLayer();
   }
 
-  /** Resizes viewport */
   public resize(width: number, height: number): void {
     this.config.viewWidth = width;
     this.config.viewHeight = height;
-
     this.calculateVisibleCount();
     this.scrollToRow(this.viewWindowRow.start);
-
-    const fullWidth = this.columns.length * this.config.cellWidth;
-
-    this.textCanvas.width = fullWidth;
-    this.textCanvas.height = height;
-    this.textCanvas.style.width = `${fullWidth}px`;
-    this.textCanvas.style.height = `${height}px`;
-
     this.renderStaticGrid();
     this.updateHeader();
     this.renderTextLayer();
     this.syncThumbPositionWithScroll();
   }
 
-  public destroy() {
+  public destroy(): void {
     document.querySelector(".canvas-table-wrapper")?.remove();
   }
-
-  /* ============================= TODO / FUTURE ============================= */
-  // TODO: Add Horizontal virtualization
-  // TODO: Add column resizing
-  // TODO: Add sticky first column
-  // TODO: Add row selection
-  // TODO: Add keyboard navigation
-  // TODO: Add column sorting
 }
