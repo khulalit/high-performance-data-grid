@@ -20,12 +20,12 @@ export const App = () => {
   const urlParams = new URLSearchParams(window.location.search);
 
   // Set default table type based on URL query parameter
-  const selectedTableType = urlParams.get("type") || "";
+  let selectedTableType = urlParams.get("type") || "";
   TABLE_TYPE_SELECT.value = selectedTableType;
 
   // Update URL when table type is changed
   TABLE_TYPE_SELECT.addEventListener("change", (event: any) => {
-    const selectedTableType = event?.target?.value! as unknown as string;
+    selectedTableType = event?.target?.value! as unknown as string;
     urlParams.set("type", selectedTableType);
     window.history.replaceState(
       {},
